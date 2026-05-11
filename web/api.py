@@ -30,13 +30,8 @@ oauth.register(
 sessions = {}
 
 # Ensure vaults directory exists
-VAULTS_DIR = "vaults"
-os.makedirs(VAULTS_DIR, exist_ok=True)
-
-def get_vault_path(username: str) -> str:
-    # Basic sanitize
-    safe_name = "".join(c for c in username if c.isalnum() or c in "._-")
-    return os.path.join(VAULTS_DIR, f"{safe_name}.vault")
+def get_vault_handler(username: str) -> VaultHandler:
+    return VaultHandler(username)
 
 class AuthRequest(BaseModel):
     username: str
@@ -99,27 +94,23 @@ async def google_auth_callback(request: Request):
 # --- STANDARD AUTH ROUTES ---
 @router.post("/register")
 def register(req: AuthRequest, response: Response):
-    path = get_vault_path(req.username)
-    if os.path.exists(path):
+    vh = get_vault_handler(req.username)
+    if vh.vault_exists():
         raise HTTPException(status_code=400, detail="User already exists")
     try:
-        vh = VaultHandler(path)
         vh.init_vault(req.master_password)
         token = secrets.token_hex(32)
         sessions[token] = {"username": req.username, "master_password": req.master_password, "is_locked": False}
         response.set_cookie(key="session_token", value=token, httponly=True)
         return {"message": "Registration successful"}
     except Exception as e:
-        if os.path.exists(path):
-            os.remove(path)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/login")
 def login(req: AuthRequest, response: Response):
-    path = get_vault_path(req.username)
-    if not os.path.exists(path):
+    vh = get_vault_handler(req.username)
+    if not vh.vault_exists():
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    vh = VaultHandler(path)
     try:
         vh.list_entries(req.master_password)
         token = secrets.token_hex(32)
@@ -142,13 +133,10 @@ def logout(request: Request, response: Response):
 # --- VAULT UNLOCK ROUTE ---
 @router.post("/vault/unlock")
 def unlock_vault(req: UnlockRequest, session: dict = Depends(get_session)):
-    username = session["username"]
+    vh = get_vault_handler(session["username"])
     master_password = req.master_password
-    path = get_vault_path(username)
-    vh = VaultHandler(path)
     
-    if not os.path.exists(path):
-        # New Google user, initialize their vault
+    if not vh.vault_exists():
         try:
             vh.init_vault(master_password)
         except Exception as e:
@@ -174,8 +162,7 @@ def get_current_session(session: dict = Depends(get_session)):
 
 @router.get("/entries")
 def get_entries(session: dict = Depends(get_unlocked_session)):
-    path = get_vault_path(session["username"])
-    vh = VaultHandler(path)
+    vh = get_vault_handler(session["username"])
     try:
         entries = vh.list_entries(session["master_password"])
         return [e.to_dict() for e in entries]
@@ -184,8 +171,7 @@ def get_entries(session: dict = Depends(get_unlocked_session)):
 
 @router.post("/entries")
 def add_entry(entry: EntryModel, session: dict = Depends(get_unlocked_session)):
-    path = get_vault_path(session["username"])
-    vh = VaultHandler(path)
+    vh = get_vault_handler(session["username"])
     new_entry = Entry.create(
         name=entry.name,
         username=entry.username,
@@ -205,8 +191,7 @@ def add_entry(entry: EntryModel, session: dict = Depends(get_unlocked_session)):
 
 @router.put("/entries/{name}")
 def update_entry(name: str, entry: EntryModel, session: dict = Depends(get_unlocked_session)):
-    path = get_vault_path(session["username"])
-    vh = VaultHandler(path)
+    vh = get_vault_handler(session["username"])
     new_entry = Entry.create(
         name=entry.name,
         username=entry.username,
@@ -225,8 +210,7 @@ def update_entry(name: str, entry: EntryModel, session: dict = Depends(get_unloc
 
 @router.delete("/entries/{name}")
 def delete_entry(name: str, session: dict = Depends(get_unlocked_session)):
-    path = get_vault_path(session["username"])
-    vh = VaultHandler(path)
+    vh = get_vault_handler(session["username"])
     try:
         deleted = vh.delete_entry(session["master_password"], name)
         if not deleted:
