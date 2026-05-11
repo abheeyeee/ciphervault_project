@@ -112,6 +112,7 @@
             </div>
             <div class="header-actions">
                 <span id="current-user" class="user-badge"></span>
+                <button onclick="exportVault()" class="action-btn" style="padding: 0.4rem 1rem; flex: 0; white-space: nowrap;">📥 Export Backup</button>
                 <button onclick="logout()" class="text-btn">Lock Vault</button>
             </div>
         </header>
@@ -148,9 +149,14 @@
                 <div class="input-group">
                     <label for="entry-password">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="entry-password" required placeholder="••••••••••••">
+                        <input type="password" id="entry-password" required placeholder="••••••••••••" oninput="checkPasswordStrength(this.value)">
+                        <button type="button" class="icon-btn" style="right: 2.5rem;" onclick="generatePassword()" title="Generate Password">🎲</button>
                         <button type="button" class="icon-btn" onclick="togglePasswordVisibility('entry-password')">👁️</button>
                     </div>
+                    <div style="margin-top: 0.5rem; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                        <div id="strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease;"></div>
+                    </div>
+                    <div id="strength-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; min-height: 1.2em;"></div>
                 </div>
                 <div class="input-group">
                     <label for="entry-notes">Notes (Optional)</label>

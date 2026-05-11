@@ -250,3 +250,74 @@ function escapeHTML(str) {
     div.innerText = str;
     return div.innerHTML;
 }
+
+// FEATURE: Secure Password Generator
+function generatePassword() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+    let password = "";
+    const array = new Uint32Array(16);
+    window.crypto.getRandomValues(array);
+    for (let i = 0; i < 16; i++) {
+        password += chars[array[i] % chars.length];
+    }
+    const input = document.getElementById('entry-password');
+    input.value = password;
+    input.type = 'text'; // Show it to the user
+    checkPasswordStrength(password);
+}
+
+// FEATURE: Password Strength Meter
+let strengthTimeout;
+async function checkPasswordStrength(password) {
+    clearTimeout(strengthTimeout);
+    const bar = document.getElementById('strength-bar');
+    const text = document.getElementById('strength-text');
+    
+    if (!password) {
+        bar.style.width = '0%';
+        text.textContent = '';
+        return;
+    }
+
+    // Debounce API call
+    strengthTimeout = setTimeout(async () => {
+        try {
+            const res = await fetch('/api/vault/check-strength', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            const data = await res.json();
+            
+            // Map score 0-4 to width and colors
+            const colors = ['#ef4444', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+            bar.style.width = ((data.score + 1) * 20) + '%';
+            bar.style.backgroundColor = colors[data.score];
+            text.textContent = data.feedback || (data.score > 2 ? 'Strong password!' : 'Weak password');
+            text.style.color = colors[data.score];
+        } catch (err) {}
+    }, 300);
+}
+
+// FEATURE: Secure Export
+function exportVault() {
+    window.open('/api/vault/export', '_blank');
+}
+
+// FEATURE: Auto-Lock Idle Timer
+let idleTimeout;
+function resetIdleTimer() {
+    clearTimeout(idleTimeout);
+    // 5 minutes
+    idleTimeout = setTimeout(() => {
+        const isAppViewActive = document.getElementById('app-view').classList.contains('active');
+        if (isAppViewActive) {
+            logout();
+            showToast('Vault auto-locked due to inactivity', true);
+        }
+    }, 300000);
+}
+['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(evt => 
+    document.addEventListener(evt, resetIdleTimer)
+);
+resetIdleTimer();
