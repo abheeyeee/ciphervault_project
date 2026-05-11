@@ -4,8 +4,13 @@ from fastapi.responses import FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 import os
 from web.api import router
+from web.database import init_db
 
 app = FastAPI(title="CipherVault Web")
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 # SessionMiddleware is required by Authlib
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY", "super-secret-default-key"))
