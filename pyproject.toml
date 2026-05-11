@@ -1,0 +1,36 @@
+[project]
+name = "ciphervault"
+version = "0.2.0"
+description = "A secure local password manager with CLI, Argon2 encryption, and password strength meter."
+authors = [
+    { name = "Abhinav Singh", email = "abhinavsingh.thedev@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+    "argon2-cffi",
+    "cryptography",
+    "click",
+    "zxcvbn",
+    "rich",
+    "pyperclip",
+    "fastapi",
+    "uvicorn",
+    "python-jose[cryptography]",
+    "python-multipart",
+    "pydantic"
+]
+
+
+[project.scripts]
+ciphervault = "ciphervault.cli:cli"
+
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+packages = ["ciphervault"]
