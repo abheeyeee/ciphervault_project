@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Response
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, PlainTextResponse
 from pydantic import BaseModel
 import secrets
 
@@ -173,7 +173,6 @@ def check_strength(req: StrengthRequest):
     warning = result.get("feedback", {}).get("warning", "")
     return {"score": result["score"], "feedback": warning}
 
-from fastapi.responses import PlainTextResponse
 @router.get("/vault/export", response_class=PlainTextResponse)
 def export_vault(session: dict = Depends(get_session)):
     # Exporting only requires authentication, not the master password
