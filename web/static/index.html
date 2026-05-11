@@ -81,6 +81,74 @@
             </div>
             
         </div>
+
+        <!-- NEW: HOW IT WORKS SECTION -->
+        <section class="info-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">How It Works</h2>
+                    <p class="section-subtitle">True Zero-Knowledge architecture explained simply.</p>
+                </div>
+                
+                <div class="steps-grid">
+                    <div class="step-card glass">
+                        <div class="step-number">1</div>
+                        <h3>Identity Verification</h3>
+                        <p>We use Google OAuth to verify you are a real person and to locate your encrypted vault in the cloud, preventing brute-force spam.</p>
+                    </div>
+                    <div class="step-card glass">
+                        <div class="step-number">2</div>
+                        <h3>Key Derivation</h3>
+                        <p>When you enter your Master Password, your device uses the <strong>Argon2id</strong> algorithm to generate a complex, 256-bit cryptographic key locally.</p>
+                    </div>
+                    <div class="step-card glass">
+                        <div class="step-number">3</div>
+                        <h3>Local Decryption</h3>
+                        <p>Your browser downloads your scrambled data and uses your key with <strong>AES-256-GCM</strong> to unlock it. Your password never leaves your screen.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: FAQ SECTION -->
+        <section class="info-section" style="padding-top: 0;">
+            <div class="container" style="max-width: 800px;">
+                <div class="section-header">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                </div>
+                
+                <div class="faq-container">
+                    <details class="faq-item glass">
+                        <summary>What is "Zero-Knowledge" encryption?</summary>
+                        <div class="faq-content">
+                            <p>Zero-Knowledge means that the server (and the developers) have absolutely zero knowledge of what your passwords are. Your Master Password is never sent to our servers; it only exists temporarily on your own device to lock and unlock your data. If our database is hacked, the hackers only get mathematically unbreakable gibberish.</p>
+                        </div>
+                    </details>
+                    
+                    <details class="faq-item glass">
+                        <summary>What happens if I forget my Master Password?</summary>
+                        <div class="faq-content">
+                            <p><strong>You lose your data.</strong> Because we practice strict Zero-Knowledge security, we cannot reset your password or recover your vault. Your Master Password is the only mathematical key that can unlock your data.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item glass">
+                        <summary>Is my data safe if the server is hacked?</summary>
+                        <div class="faq-content">
+                            <p>Yes. Your vault is encrypted using AES-256-GCM, the same encryption standard used by governments and militaries worldwide. Without your specific Master Password, the world's most powerful supercomputers would take millions of years to crack it.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item glass">
+                        <summary>Why do I need to log in with Google and a Master Password?</summary>
+                        <div class="faq-content">
+                            <p>Logging in with Google proves your identity to our servers and helps us fetch the correct encrypted file. The Master Password proves your authorization to unlock the file. Splitting these two steps prevents bots from spamming our servers with fake passwords.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
     </div>
 
     <!-- UNLOCK VIEW -->
