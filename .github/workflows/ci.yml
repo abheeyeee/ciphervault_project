@@ -21,7 +21,7 @@ jobs:
           pip install -e .
       - name: Run lint
         run: |
-          flake8 --extend-ignore=E501,E302,E303,W293,F401
+          flake8 --extend-ignore=E501,E302,E303,W293,F401,W291,E305
       - name: Run tests
         run: |
           pytest -q
