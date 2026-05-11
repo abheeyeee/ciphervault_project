@@ -24,8 +24,15 @@ os.makedirs(static_dir, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
-def serve_index():
+def serve_landing():
+    landing_path = os.path.join(static_dir, "landing.html")
+    if os.path.exists(landing_path):
+        return FileResponse(landing_path)
+    return {"message": "Landing page not found"}
+
+@app.get("/app")
+def serve_app():
     index_path = os.path.join(static_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "Static frontend not found yet"}
+    return {"message": "App not found"}

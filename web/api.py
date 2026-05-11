@@ -92,7 +92,7 @@ async def google_auth_callback(request: Request):
         "is_locked": True
     }
     
-    resp = RedirectResponse(url="/")
+    resp = RedirectResponse(url="/app")
     resp.set_cookie(key="session_token", value=session_token, httponly=True)
     return resp
 

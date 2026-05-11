@@ -65,8 +65,7 @@ async function handleAuth(event) {
 async function logout() {
     try {
         await fetch('/api/logout', { method: 'POST' });
-        showView('auth-view');
-        document.getElementById('master_password').value = '';
+        window.location.href = '/';
     } catch (err) {
         console.error(err);
     }

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CipherVault — Zero-Knowledge Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0c1020;
+    --border: rgba(0,200,255,0.12);
+    --accent: #00c8ff;
+    --accent2: #00ff9f;
+    --danger: #ff3e6c;
+    --text: #e8f0ff;
+    --muted: #4a5880;
+    --glow: 0 0 40px rgba(0,200,255,0.25);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s;
+    opacity: 0.6;
+  }
+
+  /* Grid noise overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Scanlines */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    background: linear-gradient(180deg, rgba(6,8,16,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(10px);
+  }
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo span {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--accent);
+    display: grid; place-items: center;
+    font-size: 0.75rem;
+    animation: pulse-border 3s ease infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,200,255,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(0,200,255,0); }
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+  .nav-cta:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: var(--glow);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Glowing orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,200,255,0.12) 0%, transparent 70%);
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,255,159,0.08) 0%, transparent 70%);
+    bottom: 100px; right: 10%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  .orb-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,62,108,0.07) 0%, transparent 70%);
+    top: 200px; left: 5%;
+    animation: float 7s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-24px); }
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border);
+    background: rgba(0,200,255,0.05);
+    padding: 6px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    animation: fadeInDown 0.8s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: blink 1.5s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  @keyframes fadeInDown {
+    from { opacity:0; transform: translateY(-20px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    animation: fadeInUp 0.9s 0.1s ease both;
+  }
+  @keyframes fadeInUp {
+    from { opacity:0; transform: translateY(30px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .hero-title span {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+  }
+  .hero-title span::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0; top: 0;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: blur(20px);
+    opacity: 0.4;
+    z-index: -1;
+  }
+
+  .hero-sub {
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 560px;
+    margin: 24px auto 48px;
+    line-height: 1.7;
+    animation: fadeInUp 0.9s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeInUp 0.9s 0.3s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.2);
+    transform: translateX(-100%) skewX(-15deg);
+    transition: transform 0.4s;
+  }
+  .btn-primary:hover::before { transform: translateX(150%) skewX(-15deg); }
+  .btn-primary:hover { box-shadow: 0 0 50px rgba(0,200,255,0.4); transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 16px 40px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: inset 0 0 20px rgba(0,200,255,0.07);
+  }
+
+  .hero-visual {
+    margin-top: 80px;
+    position: relative;
+    animation: fadeInUp 0.9s 0.4s ease both;
+    width: 100%; max-width: 800px;
+  }
+  .terminal {
+    background: rgba(12,16,32,0.9);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 60px rgba(0,200,255,0.08), inset 0 1px 0 rgba(0,200,255,0.1);
+    padding: 0;
+    text-align: left;
+  }
+  .terminal-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,200,255,0.03);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff3e6c; }
+  .dot-y { background: #ffcc00; }
+  .dot-g { background: var(--accent2); }
+  .terminal-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-left: auto; margin-right: auto;
+    letter-spacing: 0.12em;
+  }
+  .terminal-body {
+    padding: 24px 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+  }
+  .t-muted { color: var(--muted); }
+  .t-accent { color: var(--accent); }
+  .t-green { color: var(--accent2); }
+  .t-red { color: var(--danger); }
+  .t-white { color: var(--text); }
+  .cursor-blink {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--accent);
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  /* STATS */
+  .stats {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 2;
+  }
+  .stat {
+    flex: 1; min-width: 180px;
+    padding: 40px 48px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .stat:last-child { border-right: none; }
+  .stat:hover { background: rgba(0,200,255,0.03); }
+  .stat-num {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+  }
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* FEATURES */
+  .section {
+    padding: 120px 60px;
+    position: relative; z-index: 2;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--accent);
+  }
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .feature-card {
+    background: var(--bg);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .feature-card:hover { background: rgba(0,200,255,0.03); }
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    display: block;
+    filter: drop-shadow(0 0 10px rgba(0,200,255,0.4));
+  }
+  .feature-name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .feature-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .feature-tag {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid rgba(0,255,159,0.2);
+    padding: 3px 10px;
+    background: rgba(0,255,159,0.04);
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    padding: 120px 60px;
+    position: relative; z-index: 2;
+    overflow: hidden;
+  }
+  .how-section-inner { max-width: 1200px; margin: 0 auto; }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 48px;
+    margin-top: 64px;
+    counter-reset: steps;
+  }
+  .step {
+    position: relative;
+    padding-top: 16px;
+  }
+  .step::before {
+    counter-increment: steps;
+    content: counter(steps, decimal-leading-zero);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .step-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .step-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .step-line {
+    position: absolute;
+    top: 20px; left: 60px; right: -24px; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    display: none;
+  }
+
+  /* SECURITY */
+  .security-section {
+    padding: 120px 60px;
+    position: relative; z-index: 2;
+    background: linear-gradient(180deg, transparent, rgba(0,200,255,0.03), transparent);
+  }
+  .security-inner { max-width: 1200px; margin: 0 auto; }
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-top: 64px;
+  }
+  .security-list { list-style: none; }
+  .security-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .security-item:first-child { border-top: 1px solid var(--border); }
+  .sec-icon {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border: 1px solid var(--border);
+    display: grid; place-items: center;
+    font-size: 1.1rem;
+    background: rgba(0,200,255,0.05);
+  }
+  .sec-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
+  .sec-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+  .cipher-block {
+    background: rgba(12,16,32,0.6);
+    border: 1px solid var(--border);
+    padding: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.9;
+    color: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+  .cipher-block::before {
+    content: 'ENCRYPTED PAYLOAD';
+    position: absolute; top: 12px; right: 16px;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(0,200,255,0.3);
+  }
+  .cipher-highlight {
+    color: var(--accent);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: scroll-text 12s linear infinite;
+  }
+  @keyframes scroll-text {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-20%); }
+    100% { transform: translateX(0); }
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 140px 60px;
+    position: relative; z-index: 2;
+    text-align: center;
+  }
+  .cta-inner { max-width: 720px; margin: 0 auto; }
+  .cta-title {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .cta-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cta-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+  .cta-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-top: 20px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+    position: relative; z-index: 2;
+  }
+  .footer-logo {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    text-decoration: none;
+  }
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .section, .how-section, .security-section, .cta-section { padding: 80px 24px; }
+    .security-grid { grid-template-columns: 1fr; }
+    .stats { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+    .hero { padding: 100px 24px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span>CV</span>
+    CIPHERVAULT
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#security">Security</a></li>
+  </ul>
+  <a href="/app" class="nav-cta">Open Vault</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-badge">Zero-Knowledge Architecture · Military Grade</div>
+
+  <h1 class="hero-title">
+    Your Passwords.<br>
+    <span data-text="Truly Private.">Truly Private.</span>
+  </h1>
+
+  <p class="hero-sub">
+    CipherVault encrypts everything locally with AES-256-GCM. Your master password never leaves your device — not even we can read your vault.
+  </p>
+
+  <div class="hero-actions">
+    <a href="/app" class="btn-primary">Create Free Vault</a>
+    <a href="#features" class="btn-ghost">Explore Security</a>
+  </div>
+
+  <div class="hero-visual">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="terminal-title">ciphervault — vault:decrypt</span>
+      </div>
+      <div class="terminal-body">
+        <span class="t-muted">$ </span><span class="t-accent">ciphervault</span><span class="t-white"> --open vault.cv</span><br>
+        <span class="t-muted">↳ Loading encrypted payload...</span><br>
+        <span class="t-muted">↳ Deriving key with </span><span class="t-green">Argon2id</span><span class="t-muted"> (t=3, m=65536)</span><br>
+        <span class="t-muted">↳ Verifying integrity with </span><span class="t-green">AES-256-GCM</span><span class="t-muted">...</span><br>
+        <span class="t-green">✔ Vault decrypted successfully. 42 entries loaded.</span><br>
+        <span class="t-muted">↳ </span><span class="t-white">Zero data sent to server. </span><span class="t-accent">Zero.</span><br>
+        <span class="t-muted">$ </span><span class="cursor-blink"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat reveal">
+    <span class="stat-num">256</span>
+    <span class="stat-label">Bit Encryption Key</span>
+  </div>
+  <div class="stat reveal">
+    <span class="stat-num">0</span>
+    <span class="stat-label">Bytes Sent to Servers</span>
+  </div>
+  <div class="stat reveal">
+    <span class="stat-num">2<sup style="font-size:0.5em">256</sup></span>
+    <span class="stat-label">Possible Combinations</span>
+  </div>
+  <div class="stat reveal">
+    <span class="stat-num">∞</span>
+    <span class="stat-label">Passwords Stored</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title reveal">Built for Paranoids.<br>Loved by Everyone.</h2>
+  <p class="section-desc reveal">Every feature is designed around a single principle: you should be the only one who can ever access your data.</p>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔐</span>
+      <div class="feature-name">AES-256-GCM Encryption</div>
+      <p class="feature-desc">The gold standard in symmetric encryption. Used by governments, militaries, and Fortune 500s. Your vault is locked with a cipher that would take longer than the age of the universe to brute-force.</p>
+      <span class="feature-tag">Symmetric · Authenticated</span>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">⚗️</span>
+      <div class="feature-name">Argon2id Key Derivation</div>
+      <p class="feature-desc">Winner of the Password Hashing Competition. Memory-hard and quantum-resistant. Your master password is transformed into a cryptographic key that makes brute-force attacks computationally impossible.</p>
+      <span class="feature-tag">Memory-Hard · PHC Winner</span>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🧠</span>
+      <div class="feature-name">Zero-Knowledge Architecture</div>
+      <p class="feature-desc">Encryption and decryption happen entirely in your browser. Your master password is never transmitted. Even if our servers were compromised, attackers would find only meaningless encrypted blobs.</p>
+      <span class="feature-tag">Client-Side Only</span>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔑</span>
+      <div class="feature-name">Google OAuth Login</div>
+      <p class="feature-desc">Use your Google account to authenticate — without linking it to your vault contents. Authentication is separate from encryption. Login credentials never unlock your vault data.</p>
+      <span class="feature-tag">OAuth 2.0 · Isolated</span>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📋</span>
+      <div class="feature-name">Structured Entry Storage</div>
+      <p class="feature-desc">Store credentials with website, username, password, and notes — all individually encrypted. Organize your entire digital life in one secure, searchable location.</p>
+      <span class="feature-tag">Per-Field Encryption</span>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔒</span>
+      <div class="feature-name">Vault Locking</div>
+      <p class="feature-desc">Step away from your device without worry. One click locks the vault and wipes all decrypted data from memory. Your secrets vanish until you enter your master password again.</p>
+      <span class="feature-tag">Memory-Safe · Instant</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-section-inner">
+    <div class="section-label">Process</div>
+    <h2 class="section-title reveal">How CipherVault Works</h2>
+    <p class="section-desc reveal">Security through transparency. Here's exactly what happens when you access your vault — no black boxes.</p>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-title">You enter your master password</div>
+        <p class="step-desc">Your master password is processed locally. It never leaves your browser, never hits a network request, never gets logged anywhere.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-title">Argon2id derives your key</div>
+        <p class="step-desc">The password is transformed into a 256-bit cryptographic key using Argon2id — intentionally slow and memory-intensive to defeat brute force attacks.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-title">AES-256-GCM decrypts the vault</div>
+        <p class="step-desc">Your encrypted vault blob is decrypted in-browser using the derived key. The authenticated encryption scheme verifies no tampering occurred.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-title">Vault is live — data stays local</div>
+        <p class="step-desc">Your decrypted entries exist only in browser memory. Every save re-encrypts immediately. Lock the vault and everything is wiped from memory instantly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="security-section" id="security">
+  <div class="security-inner">
+    <div class="section-label">Trust Model</div>
+    <h2 class="section-title reveal">Designed to Distrust Us</h2>
+    <p class="section-desc reveal">CipherVault's security model assumes the worst: that servers get breached, admins go rogue, and networks are compromised. You're still safe.</p>
+
+    <div class="security-grid">
+      <ul class="security-list">
+        <li class="security-item reveal">
+          <div class="sec-icon">🛡️</div>
+          <div>
+            <div class="sec-name">Server-Side Blindness</div>
+            <p class="sec-desc">Our servers only store encrypted ciphertext. Without your master password — which we never receive — it is indistinguishable from random noise.</p>
+          </div>
+        </li>
+        <li class="security-item reveal">
+          <div class="sec-icon">⚡</div>
+          <div>
+            <div class="sec-name">Authenticated Encryption</div>
+            <p class="sec-desc">GCM mode provides both confidentiality and integrity. Any tampering with the encrypted payload is detected and rejected before decryption.</p>
+          </div>
+        </li>
+        <li class="security-item reveal">
+          <div class="sec-icon">🌊</div>
+          <div>
+            <div class="sec-name">Quantum Resistance</div>
+            <p class="sec-desc">Argon2id's memory-hardness provides meaningful resistance against future quantum computing attacks on the key derivation layer.</p>
+          </div>
+        </li>
+        <li class="security-item reveal">
+          <div class="sec-icon">👁️</div>
+          <div>
+            <div class="sec-name">No Analytics, No Tracking</div>
+            <p class="sec-desc">We don't track what passwords you store, how many entries you have, or which sites you use. Your usage patterns are as private as your passwords.</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="cipher-block reveal">
+        <div class="t-muted">// Vault payload (server-stored)</div><br>
+        <span class="cipher-highlight">eyJhbGciOiJBMjU2R0NNS1ciLCJlbmMiOiJBMjU2</span>
+        <span class="cipher-highlight">R0NNIiwiaXYiOiJrVXdtU1pUUkpfc3JzRVgifQ.</span>
+        <span class="cipher-highlight">d2hhdCB5b3UgbG9va2luZyBmb3I_IHRoaXMgaXM.</span>
+        <span class="cipher-highlight">anVzdCBlbmNyeXB0ZWQgbm9pc2UuIG5vdGhpbmcg</span>
+        <span class="cipher-highlight">dG8gc2VlIGhlcmUuIG1vdmUgYWxvbmcu</span>
+        <br>
+        <div class="t-muted">// Without master password:</div>
+        <div class="t-red">→ Mathematically unrecoverable</div><br>
+        <div class="t-muted">// Argon2id parameters:</div>
+        <div class="t-accent">→ memory: 65536 KB</div>
+        <div class="t-accent">→ iterations: 3</div>
+        <div class="t-accent">→ parallelism: 1</div>
+        <div class="t-green">→ resistance: extreme</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title reveal">
+      Your passwords.<br>
+      <em>Your control.</em>
+    </h2>
+    <p class="cta-sub reveal">Create your vault in under 30 seconds. No credit card, no complicated setup — just real, uncompromising security that works.</p>
+    <div class="reveal">
+      <a href="/app" class="btn-primary">Create Your Vault — It's Free</a>
+      <p class="cta-note">// No credit card · No data collection · Open immediately</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/app" class="footer-logo">CIPHERVAULT</a>
+  <div class="footer-links">
+    <a href="/app">App</a>
+    <a href="#features">Features</a>
+    <a href="#security">Security</a>
+  </div>
+  <p class="footer-copy">Zero-knowledge. Zero compromise.</p>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 80);
+  });
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '16px';
+      cursor.style.height = '16px';
+      ring.style.width = '54px';
+      ring.style.height = '54px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '10px';
+      cursor.style.height = '10px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), 80);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Stat number counter animation
+  const stats = document.querySelectorAll('.stat-num');
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const text = el.textContent.trim();
+        if (text === '256' || text === '0') {
+          let start = 0;
+          const end = parseInt(text);
+          const duration = 1200;
+          const step = Math.ceil(end / (duration / 16));
+          const timer = setInterval(() => {
+            start = Math.min(start + step, end);
+            el.textContent = start;
+            if (start >= end) clearInterval(timer);
+          }, 16);
+        }
+        statObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  stats.forEach(el => statObserver.observe(el));
+</script>
+</body>
+</html>
