@@ -10,6 +10,8 @@ from starlette.config import Config
 
 from ciphervault.vault_handler import VaultHandler, VaultCorrupted, WrongPassword
 from ciphervault.models import Entry
+from web.database import SessionLocal, Vault
+import zxcvbn
 
 router = APIRouter()
 
@@ -45,6 +47,9 @@ class EntryModel(BaseModel):
     username: str
     password: str
     notes: Optional[str] = ""
+
+class StrengthRequest(BaseModel):
+    password: str
 
 def get_session(request: Request):
     token = request.cookies.get("session_token")
@@ -159,6 +164,26 @@ def get_current_session(session: dict = Depends(get_session)):
         "username": session["username"],
         "is_locked": session.get("is_locked", True)
     }
+
+@router.post("/vault/check-strength")
+def check_strength(req: StrengthRequest):
+    if not req.password:
+        return {"score": 0, "feedback": ""}
+    result = zxcvbn.zxcvbn(req.password)
+    warning = result.get("feedback", {}).get("warning", "")
+    return {"score": result["score"], "feedback": warning}
+
+from fastapi.responses import PlainTextResponse
+@router.get("/vault/export", response_class=PlainTextResponse)
+def export_vault(session: dict = Depends(get_session)):
+    # Exporting only requires authentication, not the master password
+    vh = get_vault_handler(session["username"])
+    with SessionLocal() as db:
+        vault = db.query(Vault).filter(Vault.username == vh.username).first()
+        if not vault:
+            raise HTTPException(status_code=404, detail="Vault not found")
+        # Return as a plain text block
+        return f"--- CIPHERVAULT ENCRYPTED EXPORT ---\nMAGIC:{vault.magic}\nSALT:{vault.salt}\nNONCE:{vault.nonce}\nCIPHERTEXT:{vault.ciphertext}\n------------------------------------"
 
 @router.get("/entries")
 def get_entries(session: dict = Depends(get_unlocked_session)):
