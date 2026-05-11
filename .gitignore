@@ -6,6 +6,7 @@ env/
 # App Data
 vaults/
 *.vault
+*.db
 
 # Python
 __pycache__/
