@@ -6,149 +6,52 @@
     <title>CipherVault | Zero-Knowledge Security</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 
     <!-- Landing / Auth View -->
     <div id="auth-view" class="view active">
-        <div class="landing-grid">
+        <div class="auth-card glass centered-card" style="margin: auto; margin-top: 4rem; margin-bottom: 4rem;">
+            <div class="header-logo" style="text-align: center; margin-bottom: 1rem;">
+                <span class="highlight">Cipher</span>Vault
+            </div>
+            <h2 class="auth-heading">Access Your Vault</h2>
+            <p class="auth-sub">Sign in to decrypt your secrets</p>
             
-            <!-- Left Side: Marketing Pitch -->
-            <div class="landing-pitch">
-                <div class="pitch-content">
-                    <h1 class="landing-title">Zero-Knowledge.<br><span class="highlight">Infinite Security.</span></h1>
-                    <p class="landing-subtitle">Military-grade encryption for your digital life. Because your passwords should be yours alone.</p>
-                    
-                    <ul class="features-list">
-                        <li>
-                            <div class="feature-icon">🛡️</div>
-                            <div class="feature-text">
-                                <strong>AES-256-GCM Encryption</strong>
-                                <span>Unbreakable symmetric cryptography</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="feature-icon">⚡</div>
-                            <div class="feature-text">
-                                <strong>Argon2id Derivation</strong>
-                                <span>Quantum-resistant key generation</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="hero-image-wrapper">
-                    <img src="/static/img/hero.png" alt="Secure Cryptographic Cube" class="hero-image">
-                </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Create Vault</button>
             </div>
 
-            <!-- Right Side: Auth Card -->
-            <div class="landing-auth">
-                <div class="auth-card glass">
-                    <h2 class="auth-heading">Access Your Vault</h2>
-                    <p class="auth-sub">Sign in to decrypt your secrets</p>
-                    
-                    <div class="tabs">
-                        <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
-                        <button class="tab-btn" onclick="switchAuthTab('register')">Create Vault</button>
-                    </div>
-
-                    <form id="auth-form" onsubmit="handleAuth(event)">
-                        <input type="hidden" id="auth-mode" value="login">
-                        <div class="input-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="username" autocomplete="username" placeholder="Enter your email">
-                        </div>
-                        <div class="input-group">
-                            <label for="master_password">Master Password</label>
-                            <input type="password" id="master_password" autocomplete="current-password" placeholder="••••••••">
-                        </div>
-                        <div id="auth-error" class="error-msg"></div>
-                        <button type="submit" class="primary-btn" id="auth-submit-btn">Login</button>
-                    </form>
-                    
-                    <div class="divider">
-                        <span>OR</span>
-                    </div>
-                    
-                    <a href="/api/auth/google/login" class="google-btn">
-                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                        Continue with Google
-                    </a>
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <input type="hidden" id="auth-mode" value="login">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" autocomplete="username" placeholder="Enter your email">
                 </div>
+                <div class="input-group">
+                    <label for="master_password">Master Password</label>
+                    <input type="password" id="master_password" autocomplete="current-password" placeholder="••••••••">
+                </div>
+                <div id="auth-error" class="error-msg"></div>
+                <button type="submit" class="primary-btn" id="auth-submit-btn">Login</button>
+            </form>
+            
+            <div class="divider">
+                <span>OR</span>
             </div>
             
+            <a href="/api/auth/google/login" class="google-btn">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Continue with Google
+            </a>
+            
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <a href="/" class="text-btn" style="font-size: 0.8rem;">← Back to Storefront</a>
+            </div>
         </div>
-
-        <!-- NEW: HOW IT WORKS SECTION -->
-        <section class="info-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">How It Works</h2>
-                    <p class="section-subtitle">True Zero-Knowledge architecture explained simply.</p>
-                </div>
-                
-                <div class="steps-grid">
-                    <div class="step-card glass">
-                        <div class="step-number">1</div>
-                        <h3>Identity Verification</h3>
-                        <p>We use Google OAuth to verify you are a real person and to locate your encrypted vault in the cloud, preventing brute-force spam.</p>
-                    </div>
-                    <div class="step-card glass">
-                        <div class="step-number">2</div>
-                        <h3>Key Derivation</h3>
-                        <p>When you enter your Master Password, your device uses the <strong>Argon2id</strong> algorithm to generate a complex, 256-bit cryptographic key locally.</p>
-                    </div>
-                    <div class="step-card glass">
-                        <div class="step-number">3</div>
-                        <h3>Local Decryption</h3>
-                        <p>Your browser downloads your scrambled data and uses your key with <strong>AES-256-GCM</strong> to unlock it. Your password never leaves your screen.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NEW: FAQ SECTION -->
-        <section class="info-section" style="padding-top: 0;">
-            <div class="container" style="max-width: 800px;">
-                <div class="section-header">
-                    <h2 class="section-title">Frequently Asked Questions</h2>
-                </div>
-                
-                <div class="faq-container">
-                    <details class="faq-item glass">
-                        <summary>What is "Zero-Knowledge" encryption?</summary>
-                        <div class="faq-content">
-                            <p>Zero-Knowledge means that the server (and the developers) have absolutely zero knowledge of what your passwords are. Your Master Password is never sent to our servers; it only exists temporarily on your own device to lock and unlock your data. If our database is hacked, the hackers only get mathematically unbreakable gibberish.</p>
-                        </div>
-                    </details>
-                    
-                    <details class="faq-item glass">
-                        <summary>What happens if I forget my Master Password?</summary>
-                        <div class="faq-content">
-                            <p><strong>You lose your data.</strong> Because we practice strict Zero-Knowledge security, we cannot reset your password or recover your vault. Your Master Password is the only mathematical key that can unlock your data.</p>
-                        </div>
-                    </details>
-
-                    <details class="faq-item glass">
-                        <summary>Is my data safe if the server is hacked?</summary>
-                        <div class="faq-content">
-                            <p>Yes. Your vault is encrypted using AES-256-GCM, the same encryption standard used by governments and militaries worldwide. Without your specific Master Password, the world's most powerful supercomputers would take millions of years to crack it.</p>
-                        </div>
-                    </details>
-
-                    <details class="faq-item glass">
-                        <summary>Why do I need to log in with Google and a Master Password?</summary>
-                        <div class="faq-content">
-                            <p>Logging in with Google proves your identity to our servers and helps us fetch the correct encrypted file. The Master Password proves your authorization to unlock the file. Splitting these two steps prevents bots from spamming our servers with fake passwords.</p>
-                        </div>
-                    </details>
-                </div>
-            </div>
-        </section>
-
     </div>
 
     <!-- UNLOCK VIEW -->
