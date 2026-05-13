@@ -652,6 +652,68 @@
   }
   .footer-links a:hover { color: var(--text); }
 
+  /* FAQ */
+  .faq-section {
+    padding: 120px 60px;
+    position: relative; z-index: 2;
+    max-width: 1000px; margin: 0 auto;
+  }
+  .faq-container {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-top: 64px;
+  }
+  .faq-item {
+    background: rgba(12,16,32,0.6);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .faq-item:hover {
+    background: rgba(0,200,255,0.02);
+    border-color: rgba(0,200,255,0.25);
+  }
+  .faq-item summary {
+    padding: 24px 32px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text);
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item summary::after {
+    content: '+';
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    font-size: 1.4rem;
+    font-weight: 400;
+    transition: transform 0.3s ease;
+  }
+  .faq-item[open] summary::after {
+    transform: rotate(45deg);
+    color: var(--accent2);
+  }
+  .faq-content {
+    padding: 0 32px 24px 32px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+  .faq-content strong {
+    color: var(--danger);
+  }
+  .faq-content a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .faq-content a:hover {
+    text-decoration: underline;
+  }
+
   /* Scroll reveal */
   .reveal {
     opacity: 0;
@@ -666,7 +728,7 @@
   @media (max-width: 768px) {
     nav { padding: 16px 24px; }
     .nav-links { display: none; }
-    .section, .how-section, .security-section, .cta-section { padding: 80px 24px; }
+    .section, .how-section, .security-section, .faq-section, .cta-section { padding: 80px 24px; }
     .security-grid { grid-template-columns: 1fr; }
     .stats { flex-direction: column; }
     .stat { border-right: none; border-bottom: 1px solid var(--border); }
@@ -690,6 +752,7 @@
     <li><a href="#features">Features</a></li>
     <li><a href="#how">How It Works</a></li>
     <li><a href="#security">Security</a></li>
+    <li><a href="#faq">FAQ</a></li>
   </ul>
   <a href="/app" class="nav-cta">Open Vault</a>
 </nav>
@@ -890,6 +953,43 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="section-label">Clarity</div>
+  <h2 class="section-title reveal">Frequently Asked Questions</h2>
+  <p class="section-desc reveal">Everything you need to know about our zero-knowledge architecture, security guarantees, and recovery mechanisms.</p>
+
+  <div class="faq-container">
+    <details class="faq-item reveal">
+      <summary>What is "Zero-Knowledge" encryption?</summary>
+      <div class="faq-content">
+        <p>Zero-Knowledge means that the server (and the developers) have absolutely zero knowledge of what your passwords are. Your Master Password is never sent to our servers; it only exists temporarily on your own device to lock and unlock your data. If our database is hacked, the hackers only get mathematically unbreakable gibberish.</p>
+      </div>
+    </details>
+    
+    <details class="faq-item reveal">
+      <summary>What happens if I forget my Master Password?</summary>
+      <div class="faq-content">
+        <p><strong>You lose your data.</strong> Because we practice strict Zero-Knowledge security, we cannot reset your password or recover your vault. Your Master Password is the only mathematical key that can unlock your data.</p>
+      </div>
+    </details>
+
+    <details class="faq-item reveal">
+      <summary>Is my data safe if the server is hacked?</summary>
+      <div class="faq-content">
+        <p>Yes. Your vault is encrypted using AES-256-GCM, the same encryption standard used by governments and militaries worldwide. Without your specific Master Password, the world's most powerful supercomputers would take millions of years to crack it.</p>
+      </div>
+    </details>
+
+    <details class="faq-item reveal">
+      <summary>Why do I need to log in with Google and a Master Password?</summary>
+      <div class="faq-content">
+        <p>Logging in with Google proves your identity to our servers and helps us fetch the correct encrypted file. The Master Password proves your authorization to unlock the file. Splitting these two steps prevents bots from spamming our servers with fake passwords.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-section">
   <div class="cta-inner">
@@ -912,6 +1012,7 @@
     <a href="/app">App</a>
     <a href="#features">Features</a>
     <a href="#security">Security</a>
+    <a href="#faq">FAQ</a>
   </div>
   <p class="footer-copy">Zero-knowledge. Zero compromise.</p>
 </footer>
