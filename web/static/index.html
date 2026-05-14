@@ -8,8 +8,99 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+      /* === AUTH VIEW ISOLATION ===
+         Prevents global styles.css rules from breaking the premium login layout */
+      body.auth-active {
+        overflow: hidden !important;
+        cursor: none !important;
+        display: block !important;
+        align-items: unset !important;
+        justify-content: unset !important;
+      }
+      body.auth-active::before {
+        background-image:
+          linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px) !important;
+        background-size: 48px 48px !important;
+        filter: none !important;
+        border-radius: 0 !important;
+        width: auto !important; height: auto !important;
+        inset: 0 !important;
+        top: 0 !important; left: 0 !important;
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      body.auth-active::after {
+        background: repeating-linear-gradient(
+          0deg, transparent, transparent 2px,
+          rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+        ) !important;
+        filter: none !important;
+        border-radius: 0 !important;
+        width: auto !important; height: auto !important;
+        inset: 0 !important;
+        bottom: 0 !important; right: 0 !important;
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      body.auth-active * { cursor: none !important; }
+      /* Fix the two-column page grid */
+      #auth-view { position: fixed; inset: 0; z-index: 10; display: block !important; flex-direction: unset !important; }
+      #auth-view .page {
+        display: grid !important;
+        grid-template-columns: 1fr 480px !important;
+        min-height: 100vh !important;
+        width: 100% !important;
+        position: relative; z-index: 2;
+      }
+      /* Override global input styles inside auth-view */
+      #auth-view input[type="text"],
+      #auth-view input[type="password"],
+      #auth-view input[type="email"] {
+        background: rgba(12,16,32,0.8) !important;
+        border: 1.5px solid rgba(0,200,255,0.12) !important;
+        color: #e8f0ff !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 0.85rem !important;
+        padding: 14px 14px 14px 42px !important;
+        border-radius: 0 !important;
+        letter-spacing: 0.05em !important;
+        outline: none !important;
+        width: 100% !important;
+      }
+      #auth-view input[type="password"] { letter-spacing: 0.2em !important; }
+      #auth-view input::placeholder { color: #4a5880 !important; opacity: 0.6 !important; }
+      #auth-view input:focus {
+        border-color: #00c8ff !important;
+        background: rgba(0,200,255,0.04) !important;
+        box-shadow: 0 0 0 3px rgba(0,200,255,0.08), inset 0 0 20px rgba(0,200,255,0.03) !important;
+      }
+      #auth-view input.error { border-color: #ff3e6c !important; }
+      /* Fix checkbox inputs */
+      #auth-view input[type="checkbox"] {
+        padding: 0 !important;
+        border: none !important;
+        background: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        letter-spacing: normal !important;
+      }
+      /* Right panel panels */
+      #auth-view .right-panel {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+      }
+      @media (max-width: 900px) {
+        #auth-view .page { grid-template-columns: 1fr !important; }
+        #auth-view .left-panel { display: none !important; }
+        #auth-view .right-panel { min-height: 100vh !important; }
+        body.auth-active { overflow: auto !important; }
+      }
+    </style>
 </head>
-<body>
+<body class="auth-active">
 
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
