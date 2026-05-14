@@ -11,47 +11,437 @@
 </head>
 <body>
 
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
     <!-- Landing / Auth View -->
     <div id="auth-view" class="view active">
-        <div class="auth-card glass centered-card" style="margin: auto; margin-top: 4rem; margin-bottom: 4rem;">
-            <div class="header-logo" style="text-align: center; margin-bottom: 1rem;">
-                <span class="highlight">Cipher</span>Vault
-            </div>
-            <h2 class="auth-heading">Access Your Vault</h2>
-            <p class="auth-sub">Sign in to decrypt your secrets</p>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
-                <button class="tab-btn" onclick="switchAuthTab('register')">Create Vault</button>
+        <div class="page">
+
+          <!-- LEFT PANEL -->
+          <div class="left-panel">
+            <div class="left-panel-bg"></div>
+
+            <a href="/" class="brand">
+              <div class="brand-mark">CV</div>
+              <span class="brand-name">CIPHERVAULT</span>
+            </a>
+
+            <div class="left-content">
+              <div class="left-tag">Vault Access</div>
+              <h1 class="left-heading">
+                Only you<br>can open<br>
+                <em data-text="this vault.">this vault.</em>
+              </h1>
+              <p class="left-desc">
+                Your master password never leaves this browser. Every byte is encrypted locally before anything is stored. Not even we can read your vault.
+              </p>
+
+              <div class="security-pills">
+                <div class="pill">
+                  <div class="pill-icon">🔐</div>
+                  <div class="pill-text">
+                    <div class="pill-name">AES-256-GCM</div>
+                    <div class="pill-detail">Symmetric authenticated encryption</div>
+                  </div>
+                  <div class="pill-check">✔</div>
+                </div>
+                <div class="pill">
+                  <div class="pill-icon">⚗️</div>
+                  <div class="pill-text">
+                    <div class="pill-name">Argon2id KDF</div>
+                    <div class="pill-detail">Memory-hard key derivation</div>
+                  </div>
+                  <div class="pill-check">✔</div>
+                </div>
+                <div class="pill">
+                  <div class="pill-icon">🧠</div>
+                  <div class="pill-text">
+                    <div class="pill-name">Zero-Knowledge</div>
+                    <div class="pill-detail">Decryption happens client-side only</div>
+                  </div>
+                  <div class="pill-check">✔</div>
+                </div>
+              </div>
             </div>
 
-            <form id="auth-form" onsubmit="handleAuth(event)">
-                <input type="hidden" id="auth-mode" value="login">
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" autocomplete="username" placeholder="Enter your email">
-                </div>
-                <div class="input-group">
-                    <label for="master_password">Master Password</label>
-                    <input type="password" id="master_password" autocomplete="current-password" placeholder="••••••••">
-                </div>
-                <div id="auth-error" class="error-msg"></div>
-                <button type="submit" class="primary-btn" id="auth-submit-btn">Login</button>
-            </form>
-            
-            <div class="divider">
-                <span>OR</span>
-            </div>
-            
-            <a href="/api/auth/google/login" class="google-btn">
-                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                Continue with Google
+            <div class="left-footer">// ZERO PLAINTEXT TRANSMITTED · ZERO TRUST REQUIRED</div>
+          </div>
+
+          <!-- RIGHT PANEL -->
+          <div class="right-panel">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <a href="/" class="back-link">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              </svg>
+              Back to Home
             </a>
-            
-            <div style="margin-top: 1.5rem; text-align: center;">
-                <a href="/" class="text-btn" style="font-size: 0.8rem;">← Back to Storefront</a>
+
+            <!-- Encryption status -->
+            <div class="enc-status">
+              <span class="enc-icon">🔒</span>
+              <span class="enc-text">END-TO-END ENCRYPTION ACTIVE · TLS 1.3</span>
+              <div class="enc-pulse"></div>
             </div>
+
+            <!-- Form header -->
+            <div class="form-header">
+              <div class="form-eyebrow"><div class="status-dot"></div> Secure Session</div>
+              <div class="form-title" id="formTitle">Access Vault</div>
+              <div class="form-subtitle" id="formSubtitle">Enter your credentials to decrypt your secure vault.</div>
+            </div>
+
+            <!-- Tab switcher -->
+            <div class="tab-bar">
+              <button class="tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+              <button class="tab" id="registerTab" onclick="switchTab('register')">Create Vault</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginPanel" class="custom-panel active">
+              <div class="field">
+                <label class="field-label" for="loginUser">Username</label>
+                <div class="input-wrap">
+                  <span class="field-icon">👤</span>
+                  <input type="text" id="loginUser" class="custom-input" placeholder="your_username" autocomplete="username">
+                  <div class="input-glow"></div>
+                </div>
+                <div class="field-error" id="userError">Username is required</div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="loginPass">
+                  Master Password
+                  <a href="#">Forgot password?</a>
+                </label>
+                <div class="input-wrap">
+                  <span class="field-icon">🔑</span>
+                  <input type="password" id="loginPass" class="custom-input" placeholder="••••••••••••" autocomplete="current-password">
+                  <button class="eye-btn" type="button" onclick="togglePw('loginPass', this)" title="Toggle visibility">👁️</button>
+                  <div class="input-glow"></div>
+                </div>
+                <div class="field-error" id="passError">Master password is required</div>
+              </div>
+
+              <div class="remember-row">
+                <label class="checkbox-wrap">
+                  <input type="checkbox" id="rememberMe">
+                  <div class="checkbox-box">✔</div>
+                </label>
+                <span class="remember-label" onclick="document.getElementById('rememberMe').click()">Keep vault unlocked for 30 min</span>
+              </div>
+
+              <div id="login-auth-error" class="error-msg" style="margin-top: 10px; margin-bottom: 0;"></div>
+
+              <button class="submit-btn" id="loginBtn" onclick="handleLogin()">
+                <div class="btn-inner">
+                  <span class="btn-lock">🔓</span>
+                  Decrypt &amp; Enter Vault
+                </div>
+              </button>
+
+              <div class="custom-divider">
+                <div class="divider-line"></div>
+                <div class="divider-text">or continue with</div>
+                <div class="divider-line"></div>
+              </div>
+
+              <a href="/api/auth/google/login" class="custom-google-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+              </a>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="registerPanel" class="custom-panel">
+              <div class="field">
+                <label class="field-label" for="regUser">Choose Username</label>
+                <div class="input-wrap">
+                  <span class="field-icon">👤</span>
+                  <input type="text" id="regUser" class="custom-input" placeholder="vault_handle" autocomplete="username">
+                  <div class="input-glow"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="regEmail">Email Address</label>
+                <div class="input-wrap">
+                  <span class="field-icon">📧</span>
+                  <input type="email" id="regEmail" class="custom-input" placeholder="you@example.com" autocomplete="email">
+                  <div class="input-glow"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="regPass">Master Password</label>
+                <div class="input-wrap">
+                  <span class="field-icon">🔑</span>
+                  <input type="password" id="regPass" class="custom-input" placeholder="Choose a strong password" oninput="checkStrength(this.value)" autocomplete="new-password">
+                  <button class="eye-btn" type="button" onclick="togglePw('regPass', this)" title="Toggle visibility">👁️</button>
+                  <div class="input-glow"></div>
+                </div>
+                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                <div class="strength-label" id="strengthLabel"></div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="regConfirm">Confirm Master Password</label>
+                <div class="input-wrap">
+                  <span class="field-icon">🔒</span>
+                  <input type="password" id="regConfirm" class="custom-input" placeholder="Repeat your password" autocomplete="new-password">
+                  <button class="eye-btn" type="button" onclick="togglePw('regConfirm', this)" title="Toggle visibility">👁️</button>
+                  <div class="input-glow"></div>
+                </div>
+                <div class="field-error" id="confirmError">Passwords do not match</div>
+              </div>
+
+              <div class="remember-row">
+                <label class="checkbox-wrap">
+                  <input type="checkbox" id="agreeTerms">
+                  <div class="checkbox-box">✔</div>
+                </label>
+                <span class="remember-label" onclick="document.getElementById('agreeTerms').click()">I understand my master password cannot be recovered</span>
+              </div>
+
+              <div id="reg-auth-error" class="error-msg" style="margin-top: 10px; margin-bottom: 0;"></div>
+
+              <button class="submit-btn" id="registerBtn" onclick="handleRegister()">
+                <div class="btn-inner">
+                  <span class="btn-lock">🔐</span>
+                  Create Secure Vault
+                </div>
+              </button>
+
+              <div class="custom-divider">
+                <div class="divider-line"></div>
+                <div class="divider-text">or</div>
+                <div class="divider-line"></div>
+              </div>
+
+              <a href="/api/auth/google/login" class="custom-google-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign up with Google
+              </a>
+            </div>
+
+            <div class="form-foot">
+              <span id="footText">Don't have a vault? </span>
+              <a href="#" id="footLink" onclick="switchTab('register'); return false;">Create one — it's free</a>
+            </div>
+
+          </div>
         </div>
+
+        <script>
+          // Cursor
+          const cursor = document.getElementById('cursor');
+          const ring = document.getElementById('cursorRing');
+          document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            setTimeout(() => {
+              ring.style.left = e.clientX + 'px';
+              ring.style.top = e.clientY + 'px';
+            }, 70);
+          });
+          document.querySelectorAll('a, button, input, label').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+              cursor.style.width = '16px'; cursor.style.height = '16px';
+              ring.style.width = '50px'; ring.style.height = '50px';
+            });
+            el.addEventListener('mouseleave', () => {
+              cursor.style.width = '10px'; cursor.style.height = '10px';
+              ring.style.width = '36px'; ring.style.height = '36px';
+            });
+          });
+
+          // Tab switching
+          function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('loginTab').classList.toggle('active', isLogin);
+            document.getElementById('registerTab').classList.toggle('active', !isLogin);
+            document.getElementById('loginPanel').classList.toggle('active', isLogin);
+            document.getElementById('registerPanel').classList.toggle('active', !isLogin);
+            document.getElementById('formTitle').textContent = isLogin ? 'Access Vault' : 'Create Vault';
+            document.getElementById('formSubtitle').textContent = isLogin
+              ? 'Enter your credentials to decrypt your secure vault.'
+              : 'Choose a strong master password — it cannot be recovered.';
+            document.getElementById('footText').textContent = isLogin ? "Don't have a vault? " : 'Already have a vault? ';
+            document.getElementById('footLink').textContent = isLogin ? "Create one — it's free" : 'Sign in instead';
+            document.getElementById('footLink').onclick = () => { switchTab(isLogin ? 'register' : 'login'); return false; };
+          }
+
+          // Toggle password visibility
+          function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            if (inp.type === 'password') {
+              inp.type = 'text';
+              inp.style.setProperty('letter-spacing', '0.05em', 'important');
+              btn.textContent = '🙈';
+            } else {
+              inp.type = 'password';
+              inp.style.setProperty('letter-spacing', '0.2em', 'important');
+              btn.textContent = '👁️';
+            }
+          }
+
+          // Password strength
+          function checkStrength(val) {
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (val.length >= 14) score++;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const levels = [
+              { pct: '0%', color: 'transparent', text: '' },
+              { pct: '20%', color: '#ff3e6c', text: 'Very Weak' },
+              { pct: '40%', color: '#ff8c00', text: 'Weak' },
+              { pct: '60%', color: '#ffcc00', text: 'Fair' },
+              { pct: '80%', color: '#00c8ff', text: 'Strong' },
+              { pct: '100%', color: '#00ff9f', text: 'Excellent' },
+            ];
+            const l = val.length === 0 ? levels[0] : levels[Math.max(1, score)];
+            fill.style.width = l.pct;
+            fill.style.background = l.color;
+            label.textContent = l.text;
+            label.style.color = l.color;
+          }
+
+          // Login submit
+          async function handleLogin() {
+            const user = document.getElementById('loginUser');
+            const pass = document.getElementById('loginPass');
+            const btn = document.getElementById('loginBtn');
+            let valid = true;
+            if (!user.value.trim()) {
+              user.classList.add('error');
+              document.getElementById('userError').classList.add('show');
+              valid = false;
+            } else {
+              user.classList.remove('error');
+              document.getElementById('userError').classList.remove('show');
+            }
+            if (!pass.value) {
+              pass.classList.add('error');
+              document.getElementById('passError').classList.add('show');
+              valid = false;
+            } else {
+              pass.classList.remove('error');
+              document.getElementById('passError').classList.remove('show');
+            }
+            if (!valid) {
+              btn.classList.add('shake');
+              setTimeout(() => btn.classList.remove('shake'), 400);
+              return;
+            }
+            btn.classList.add('loading');
+            document.getElementById('login-auth-error').textContent = '';
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user.value.trim(), master_password: pass.value })
+                });
+                const data = await res.json();
+                btn.classList.remove('loading');
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Authentication failed');
+                }
+                if (typeof showToast === 'function') showToast(data.message);
+                if (typeof checkSession === 'function') checkSession();
+            } catch (err) {
+                btn.classList.remove('loading');
+                document.getElementById('login-auth-error').textContent = err.message;
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 400);
+            }
+          }
+
+          // Register submit
+          async function handleRegister() {
+            const user = document.getElementById('regUser');
+            const pass = document.getElementById('regPass');
+            const confirm = document.getElementById('regConfirm');
+            const btn = document.getElementById('registerBtn');
+            const errEl = document.getElementById('confirmError');
+            let valid = true;
+            if (!user.value.trim()) {
+              user.classList.add('error');
+              valid = false;
+            } else {
+              user.classList.remove('error');
+            }
+            if (!pass.value) {
+              pass.classList.add('error');
+              valid = false;
+            } else {
+              pass.classList.remove('error');
+            }
+            if (pass.value && confirm.value && pass.value !== confirm.value) {
+              confirm.classList.add('error');
+              errEl.classList.add('show');
+              valid = false;
+            } else {
+              confirm.classList.remove('error');
+              errEl.classList.remove('show');
+            }
+            if (!valid) {
+              btn.classList.add('shake');
+              setTimeout(() => btn.classList.remove('shake'), 400);
+              return;
+            }
+            btn.classList.add('loading');
+            document.getElementById('reg-auth-error').textContent = '';
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user.value.trim(), master_password: pass.value })
+                });
+                const data = await res.json();
+                btn.classList.remove('loading');
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Registration failed');
+                }
+                if (typeof showToast === 'function') showToast(data.message);
+                if (typeof checkSession === 'function') checkSession();
+            } catch (err) {
+                btn.classList.remove('loading');
+                document.getElementById('reg-auth-error').textContent = err.message;
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 400);
+            }
+          }
+
+          // Enter key support
+          document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              const activePanel = document.querySelector('.custom-panel.active');
+              if (activePanel && activePanel.id === 'loginPanel') handleLogin();
+              else if (activePanel && activePanel.id === 'registerPanel') handleRegister();
+            }
+          });
+        </script>
     </div>
 
     <!-- UNLOCK VIEW -->
