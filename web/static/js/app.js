@@ -119,6 +119,7 @@ async function handleUnlock(event) {
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
+    document.body.classList.toggle('auth-active', viewId === 'auth-view');
 }
 
 // Modals
