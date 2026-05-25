@@ -19,8 +19,8 @@
     --glass-highlight: rgba(0, 200, 255, 0.08);
     --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     
-    --font-sans: 'Syne', sans-serif;
-    --font-heading: 'Syne', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    --font-heading: 'Inter', sans-serif;
     --font-mono: 'Space Mono', monospace;
 }
 
@@ -32,7 +32,7 @@
 
 body {
     background-color: var(--bg-color);
-    color: var(--text-main);
+    color: var(--text);
     font-family: var(--font-sans);
     line-height: 1.5;
     min-height: 100vh;
@@ -49,28 +49,28 @@ body::before, body::after {
     border-radius: 50%;
     filter: blur(140px);
     z-index: -1;
-    opacity: 0.4;
+    opacity: 0.15;
     animation: pulseGlow 10s ease-in-out infinite alternate;
 }
 body::before {
     width: 600px;
     height: 600px;
-    background: rgba(0, 200, 255, 0.12); /* Cyan neon */
+    background: rgba(0, 200, 255, 0.05); /* Cyan neon */
     top: -200px;
     left: -200px;
 }
 body::after {
     width: 500px;
     height: 500px;
-    background: rgba(0, 255, 159, 0.1); /* Neon green */
+    background: rgba(0, 255, 159, 0.05); /* Neon green */
     bottom: -150px;
     right: -100px;
     animation-delay: -5s;
 }
 
 @keyframes pulseGlow {
-    0% { transform: scale(1); opacity: 0.4; }
-    100% { transform: scale(1.1); opacity: 0.6; }
+    0% { transform: scale(1); opacity: 0.15; }
+    100% { transform: scale(1.1); opacity: 0.25; }
 }
 
 h1, h2, h3 {
@@ -266,7 +266,7 @@ h1, h2, h3 {
 }
 .tab-btn.active {
     background: var(--glass-highlight);
-    color: var(--text-main);
+    color: var(--text);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
@@ -289,7 +289,7 @@ input[type="text"], input[type="password"], textarea {
     border-radius: 0;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--glass-border);
-    color: var(--text-main);
+    color: var(--text);
     font-size: 1rem;
     transition: all 0.2s ease;
     font-family: var(--font-mono);
@@ -322,7 +322,7 @@ input::placeholder, textarea::placeholder {
     padding: 0.25rem;
     transition: color 0.2s;
 }
-.icon-btn:hover { color: var(--text-main); }
+.icon-btn:hover { color: var(--text); }
 
 /* Buttons */
 .primary-btn {
@@ -359,7 +359,7 @@ input::placeholder, textarea::placeholder {
     font-weight: 500;
     transition: color 0.2s ease;
 }
-.text-btn:hover { color: var(--text-main); }
+.text-btn:hover { color: var(--text); }
 
 .google-btn {
     display: flex;
@@ -370,7 +370,7 @@ input::placeholder, textarea::placeholder {
     padding: 0.85rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    color: var(--text-main);
+    color: var(--text);
     text-decoration: none;
     border-radius: 0;
     font-family: var(--font-mono);
@@ -527,7 +527,7 @@ input::placeholder, textarea::placeholder {
 .action-btn {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    color: var(--text-main);
+    color: var(--text);
     padding: 0.6rem;
     border-radius: 8px;
     cursor: pointer;
@@ -694,7 +694,7 @@ input::placeholder, textarea::placeholder {
   width: 40px; height: 40px;
   border: 1.5px solid var(--accent);
   display: grid; place-items: center;
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent);
@@ -705,7 +705,7 @@ input::placeholder, textarea::placeholder {
   50% { box-shadow: 0 0 0 8px rgba(0,200,255,0); }
 }
 .brand-name {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 0.18em;
@@ -721,7 +721,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .left-tag {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -808,7 +808,7 @@ input::placeholder, textarea::placeholder {
   margin-bottom: 2px;
 }
 .pill-detail {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   color: var(--muted);
   letter-spacing: 0.08em;
@@ -819,7 +819,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .left-footer {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   color: var(--muted);
   letter-spacing: 0.1em;
@@ -852,7 +852,7 @@ input::placeholder, textarea::placeholder {
   animation: fadeInUp 0.7s 0.15s ease both;
 }
 .form-eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -892,7 +892,7 @@ input::placeholder, textarea::placeholder {
 .tab {
   padding: 12px;
   text-align: center;
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -924,7 +924,7 @@ input::placeholder, textarea::placeholder {
   gap: 8px;
 }
 .field-label {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -1017,7 +1017,7 @@ input::placeholder, textarea::placeholder {
   background: var(--danger);
 }
 .strength-label {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.6rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1057,7 +1057,7 @@ input::placeholder, textarea::placeholder {
   color: var(--accent);
 }
 .remember-label {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -1071,7 +1071,7 @@ input::placeholder, textarea::placeholder {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   border: none;
   color: var(--bg);
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.15em;
@@ -1105,7 +1105,7 @@ input::placeholder, textarea::placeholder {
 }
 .divider-line { flex: 1; height: 1px; background: var(--border); }
 .divider-text {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   color: var(--muted);
   letter-spacing: 0.15em;
@@ -1119,7 +1119,7 @@ input::placeholder, textarea::placeholder {
   background: transparent;
   border: 1.5px solid var(--border);
   color: var(--text);
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   letter-spacing: 0.1em;
   display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -1140,7 +1140,7 @@ input::placeholder, textarea::placeholder {
 .form-foot {
   text-align: center;
   margin-top: 24px;
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   color: var(--muted);
   letter-spacing: 0.08em;
@@ -1164,7 +1164,7 @@ input::placeholder, textarea::placeholder {
 }
 .enc-icon { font-size: 0.85rem; }
 .enc-text {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   color: var(--accent2);
   letter-spacing: 0.1em;
@@ -1204,7 +1204,7 @@ input::placeholder, textarea::placeholder {
 /* Error state */
 .custom-input.error { border-color: var(--danger) !important; }
 .field-error {
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.62rem;
   color: var(--danger);
   letter-spacing: 0.1em;
@@ -1225,7 +1225,7 @@ input::placeholder, textarea::placeholder {
 /* Back link */
 .back-link {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
