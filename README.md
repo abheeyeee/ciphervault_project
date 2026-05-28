@@ -1,5 +1,4 @@
-# CipherVault CLI
-
+# CipherVault 
 CipherVault is a small, secure CLI password manager that stores encrypted vaults locally. It uses Argon2id for key derivation and AES-GCM for authenticated encryption.
 
 ## Features
