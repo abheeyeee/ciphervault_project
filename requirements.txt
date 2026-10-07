@@ -1,4 +1,4 @@
-click>=8.0
+click>=8.5.0
 cryptography>=40.0
 rich>=13.0
 pyperclip>=1.8
