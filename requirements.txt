@@ -7,4 +7,4 @@ pytest>=7.0
 flake8>=6.0
 -r requirements-web.txt
 httpx>=0.25.0
-zxcvbn>=4.4.28
+zxcvbn>=4.5.0
