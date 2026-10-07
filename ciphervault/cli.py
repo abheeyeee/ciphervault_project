@@ -36,6 +36,11 @@ def init(ctx):
         console.print("[red]Passwords do not match[/]")
         sys.exit(1)
 
+    try:
+        vault._validate_new_password(pw)
+    except ValueError as error:
+        raise click.ClickException(str(error))
+
     # ------------------------
     # PASSWORD STRENGTH CHECK
     # ------------------------
@@ -71,21 +76,25 @@ def init(ctx):
 @cli.command()
 @click.argument('name')
 @click.option('--username', '-u', prompt=True)
-@click.option('--password', '-p', default=None, help='Provide a password or use --generate')
+@click.option('--password', '-p', is_flag=True, help='Enter a password in a hidden prompt; never pass a password as an argument')
 @click.option('--generate', is_flag=True, help='Auto-generate a strong password')
-@click.option('--notes', '-n', default='')
+@click.option('--notes', '-n', is_flag=True, help='Enter private notes in a hidden prompt')
 @click.option('--copy', is_flag=True, help='Copy password to clipboard after creation')
 @click.pass_context
 def add(ctx, name, username, password, generate, notes, copy):
     """Add a new entry"""
     vault = VaultHandler(ctx.obj['VAULT_PATH'])
 
+    if password and generate:
+        raise click.UsageError('Choose either --password or --generate.')
+    prompt_password = password
     master = getpass.getpass("Master password: ")
 
     # If --generate used or password not provided, auto-generate
-    if generate or not password:
+    if generate or not prompt_password:
         password = generate_password()
     else:
+        password = click.prompt('Login password', hide_input=True, confirmation_prompt=True)
         # Evaluate password strength
         try:
             result = zxcvbn(password)
@@ -102,7 +111,7 @@ def add(ctx, name, username, password, generate, notes, copy):
         name=name,
         username=username,
         password=password,
-        notes=notes
+        notes=click.prompt('Private notes', hide_input=True, default='', show_default=False) if notes else ''
     )
 
     try:
@@ -112,7 +121,7 @@ def add(ctx, name, username, password, generate, notes, copy):
         if copy:
             ok = copy_to_clipboard(password, timeout=10)
             if ok:
-                console.print("Password copied to clipboard for 10s")
+                console.print("Copied. Waiting up to 10s to clear the current clipboard. Clipboard history may retain it.")
             else:
                 console.print("Failed to copy to clipboard")
 
@@ -173,7 +182,7 @@ def get(ctx, name, show, copy):
     if copy:
         ok = copy_to_clipboard(entry.password, timeout=10)
         if ok:
-            console.print("Password copied to clipboard for 10s")
+            console.print("Copied. Waiting up to 10s to clear the current clipboard. Clipboard history may retain it.")
         else:
             console.print("Failed to copy to clipboard")
 
@@ -181,8 +190,8 @@ def get(ctx, name, show, copy):
 @cli.command()
 @click.argument('name')
 @click.option('--username', '-u', default=None)
-@click.option('--password', '-p', default=None)
-@click.option('--notes', '-n', default=None)
+@click.option('--password', '-p', is_flag=True, help='Enter the replacement password in a hidden prompt')
+@click.option('--notes', '-n', is_flag=True, help='Enter replacement notes in a hidden prompt')
 @click.pass_context
 def edit(ctx, name, username, password, notes):
     """Edit an existing entry"""
@@ -200,8 +209,8 @@ def edit(ctx, name, username, password, notes):
         sys.exit(1)
 
     new_username = username or existing.username
-    new_password = password or existing.password
-    new_notes = notes if notes is not None else existing.notes
+    new_password = click.prompt('New login password', hide_input=True, confirmation_prompt=True) if password else existing.password
+    new_notes = click.prompt('Private notes', hide_input=True, default='', show_default=False) if notes else existing.notes
 
     new_entry = Entry.create(
         name=name,
@@ -261,9 +270,12 @@ def export(ctx, path):
 def import_vault(ctx, path):
     """Import an encrypted vault file from PATH (overwrites current vault)"""
     vault = VaultHandler(ctx.obj['VAULT_PATH'])
+    master = getpass.getpass("Imported vault master password: ")
+    if vault.vault_exists() and not click.confirm('Replace the existing local vault? Keep an encrypted backup first.'):
+        return
 
     try:
-        vault.import_vault(path)
+        vault.import_vault(path, master)
         console.print('[green]Imported vault[/]')
     except Exception as e:
         console.print(f"[red]Failed: {e}[/]")
@@ -290,6 +302,8 @@ def change_master(ctx):
     except WrongPassword:
         console.print('[red]Wrong current password[/]')
         sys.exit(1)
+    except ValueError as error:
+        raise click.ClickException(str(error))
 
 
 @cli.command()

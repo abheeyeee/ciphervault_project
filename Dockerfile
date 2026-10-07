@@ -1,16 +1,19 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-web.txt .
+RUN pip install --no-cache-dir -r requirements-web.txt
 
-# Copy the source code
-COPY . .
+# Ship only the stateless server and the two browser pages.
+COPY web/main.py web/main.py
+COPY web/static/landing.html web/static/landing.html
+COPY web/static/vault.html web/static/vault.html
+COPY web/static/assets web/static/assets
 
-# Create the vaults directory
-RUN mkdir -p vaults
+# Run the read-only application without root privileges.
+USER 10001:10001
 
 # Expose port 8000
 EXPOSE 8000

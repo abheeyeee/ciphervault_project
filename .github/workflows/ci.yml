@@ -1,9 +1,17 @@
 name: CI
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -21,7 +29,7 @@ jobs:
           pip install -e .
       - name: Run lint
         run: |
-          flake8 --extend-ignore=E501,E302,E303,W293,F401,W291,E305
+          flake8 --jobs=1 --exclude=venv,node_modules,.local-backups --extend-ignore=E501,E302,E303,W293,F401,W291,E305
       - name: Run tests
         run: |
           pytest -q

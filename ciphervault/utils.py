@@ -36,6 +36,8 @@ def copy_to_clipboard(text: str, timeout: int = 10) -> bool:
         except Exception:
             pass
 
-    th = threading.Thread(target=clear_later, args=(timeout,), daemon=True)
+    # Normal CLI exit waits for cleanup instead of terminating the worker.
+    # Clipboard history and forced process termination remain outside our control.
+    th = threading.Thread(target=clear_later, args=(timeout,), daemon=False)
     th.start()
     return True

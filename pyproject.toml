@@ -6,7 +6,7 @@ authors = [
     { name = "Abhinav Singh", email = "abhinavsingh.thedev@gmail.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 
 dependencies = [
     "argon2-cffi",
@@ -17,9 +17,6 @@ dependencies = [
     "pyperclip",
     "fastapi",
     "uvicorn",
-    "python-jose[cryptography]",
-    "python-multipart",
-    "pydantic"
 ]
 
 

@@ -1,12 +1,19 @@
 # Environments
 .env
+.env.*
 venv/
+.venv/
 env/
+node_modules/
+.local-backups/
 
 # App Data
 vaults/
 *.vault
 *.db
+*.db-*
+*.ciphervault
+*.vault.lock
 
 # Python
 __pycache__/

@@ -14,6 +14,14 @@ const path=require('node:path');
  await page.goto(base);
  assert(await page.getByRole('link',{name:'Use in your browser'}).count());
  await page.goto(base+'/app');
+ // From this point, actual vault operations must send no HTTP requests,
+ // including failed requests or attempts blocked by the vault's CSP.
+ const vaultNetwork=[];
+ page.on('request',r=>{if(/^https?:/.test(r.url()))vaultNetwork.push(r.url());});
+ await page.evaluate(()=>{
+  window.vaultPolicyViolations=[];
+  document.addEventListener('securitypolicyviolation',event=>window.vaultPolicyViolations.push(event.violatedDirective));
+ });
  const pass='correct horse battery staple test';
  await page.locator('#master').fill(pass);await page.locator('#confirm').fill(pass);await page.locator('#ack').check();await page.locator('#gate-submit').click();await page.locator('#workspace').waitFor({state:'visible'});
  await page.locator('#add-button').click();await page.locator('#entry-name').fill('Email <test>');await page.locator('#entry-user').fill('me@example.com');await page.locator('#entry-url').fill('https://example.com');await page.locator('#entry-pass').fill('secret-unique-password');await page.locator('#entry-notes').fill('private note');await page.locator('#save-entry').click();await page.locator('#entry-dialog').waitFor({state:'hidden'});
@@ -40,6 +48,8 @@ const path=require('node:path');
  await page.clock.install();await page.clock.fastForward(6*60*1000);await page.locator('#welcome').waitFor({state:'visible'});assert.equal(await page.locator('.entry').count(),0);assert.equal(await page.locator('#entry-pass').inputValue(),'');
  const damaged=JSON.parse(await fs.readFile(backupPath,'utf8'));damaged.ciphertext=(damaged.ciphertext[0]==='A'?'B':'A')+damaged.ciphertext.slice(1);
  const damagedPath=path.join(temp,'damaged.ciphervault');await fs.writeFile(damagedPath,JSON.stringify(damaged));await page.locator('#import-file').setInputFiles(damagedPath);await page.locator('#master').fill(pass);await page.locator('#gate-submit').click();await page.waitForFunction(()=>document.getElementById('gate-error').textContent.includes('damaged'));assert.equal(await page.evaluate(()=>localStorage.getItem('ciphervault.browser.v1')),savedBeforeFailure);
+ assert.deepEqual(vaultNetwork,[]);
+ assert.deepEqual(await page.evaluate(()=>window.vaultPolicyViolations),[]);
  const offlineResponse=await context.request.get(base+'/download');assert(offlineResponse.headers()['content-disposition'].includes('CipherVault.html'));const offlinePath=path.join(temp,'CipherVault.html');await fs.writeFile(offlinePath,await offlineResponse.body());
  const offline=await context.newPage();const network=[];offline.on('request',r=>{if(/^https?:/.test(r.url()))network.push(r.url());});offline.on('pageerror',e=>errors.push(e.message));offline.on('dialog',d=>d.accept());await context.setOffline(true);await offline.goto('file://'+offlinePath);await offline.locator('#import-file').setInputFiles(backupPath);await offline.locator('#master').fill(pass);await offline.locator('#gate-submit').click();await offline.locator('#workspace').waitFor({state:'visible'});assert.equal(await offline.locator('.entry h3').textContent(),'Updated email');assert.deepEqual(network,[]);assert.deepEqual(errors,[]);
  console.log('PASS: create, encrypted persistence, CRUD/search, lock, wrong password, change password, backup/import, password generator, mobile layout, storage failure rollback, auto-lock, tampered backup rejection, offline file import with no network requests');

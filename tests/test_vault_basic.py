@@ -1,12 +1,8 @@
-import tempfile
 from ciphervault.vault_handler import VaultHandler
 from ciphervault.models import Entry
 
-def test_create_and_add_and_get():
-    tmp = tempfile.NamedTemporaryFile(suffix='.vault', delete=False)
-    path = tmp.name
-    tmp.close()
-    vh = VaultHandler(path)
+def test_create_and_add_and_get(tmp_path):
+    vh = VaultHandler(str(tmp_path / 'test.vault'))
     vh.init_vault('strong-pass-123')
     e = Entry.create('site', 'user', 'pw123')
     assert vh.add_entry('strong-pass-123', e)

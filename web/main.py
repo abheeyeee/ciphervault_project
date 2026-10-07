@@ -1,25 +1,21 @@
-"""Serve the local-first vault. Vault contents never need a server API."""
-import os
+"""Serve the device-only vault. This server never handles vault contents."""
 from pathlib import Path
+import re
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, PlainTextResponse
 
-app = FastAPI(title="CipherVault", docs_url=None, redoc_url=None)
+app = FastAPI(title="CipherVault", docs_url=None, redoc_url=None, openapi_url=None)
 static_dir = Path(__file__).parent / "static"
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+# The offline page carries the same restrictive policy. Reading fixed local
+# markup here does not involve vault files, request data, or environment secrets.
+vault_policy = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"',
+                         (static_dir / "vault.html").read_text()).group(1)
+landing_policy = ("default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; "
+                  "img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'")
+ASSETS = {name: static_dir / "assets" / name for name in
+          ("privacy-still-life.webp", "vault-preview.webp")}
 
-# The server-held legacy vault is only for existing development integrations.
-if os.getenv("ENABLE_LEGACY_API") == "true":
-    from starlette.middleware.sessions import SessionMiddleware
-    from web.api import router
-
-    session_key = os.getenv("SESSION_SECRET_KEY")
-    if not session_key:
-        raise RuntimeError("SESSION_SECRET_KEY is required for ENABLE_LEGACY_API")
-    app.add_middleware(SessionMiddleware, secret_key=session_key)
-    app.include_router(router, prefix="/api")
 
 
 @app.middleware("http")
@@ -29,6 +25,13 @@ async def security_headers(request, call_next):
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Cache-Control"] = "no-store"
+    policy = vault_policy if request.url.path in ("/app", "/download") else landing_policy
+    response.headers["Content-Security-Policy"] = policy + "; frame-ancestors 'none'"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    if request.url.scheme == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+
     return response
 
 
@@ -51,3 +54,21 @@ def serve_app():
 def download_app():
     return FileResponse(static_dir / "vault.html", media_type="text/html",
                         filename="CipherVault.html")
+
+
+@app.get("/assets/{name}")
+def landing_asset(name: str):
+    # An explicit allowlist prevents serving source files or private data.
+    if name not in ASSETS:
+        raise HTTPException(status_code=404)
+    return FileResponse(ASSETS[name], media_type="image/webp")
+
+
+@app.get("/robots.txt")
+def robots():
+    return PlainTextResponse("User-agent: *\nAllow: /\nDisallow: /app\nDisallow: /download\nDisallow: /api/\n")
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return FileResponse(static_dir / "assets" / "brand-mark.webp", media_type="image/webp")
