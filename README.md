@@ -67,7 +67,7 @@ The CLI and browser encryption formats are separate. **Neither imports the other
 
 ## Validation
 
-This is a personal project with a simple workflow: make changes locally, optionally run the checks below, commit, and push to `main`. No CI pipeline, required pull request, reviewer approval, or Dependabot PR automation is configured. Dependencies can be updated manually when needed.
+This is a personal project with a simple workflow: make changes locally, optionally run the checks below, commit, and push to `main`. No CI pipeline, required pull request, reviewer approval, or Dependabot PR automation is configured. The connected Render service deploys on each commit to `main`. Dependencies can be updated manually when needed.
 
 ```bash
 git pull --ff-only

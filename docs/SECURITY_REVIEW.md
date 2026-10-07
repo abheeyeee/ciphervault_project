@@ -26,7 +26,7 @@ Local Lighthouse mobile measurements: performance 100, accessibility 100, best p
 
 ## Infrastructure evidence and limits
 
-The connected Render workspace contains the CipherVault Docker web service, linked to this repository's `main` branch with deployment after checks pass. No PostgreSQL or Key Value instances were listed. Its existing health-check path is empty; the application exposes `/health`, and `render.yaml` configures that path for Blueprint deployments. Source changes do not automatically update existing dashboard settings.
+The connected Render workspace contains the CipherVault Docker web service, linked to this repository's `main` branch. After removing CI, its auto-deploy trigger was changed from checks passing to each commit and verified through the service API. No PostgreSQL or Key Value instances were listed. Its existing health-check path is empty; the application exposes `/health`, and `render.yaml` configures that path for Blueprint deployments. Source changes do not automatically update existing dashboard settings.
 
 The local Docker daemon was unavailable, so the Docker build could not be exercised locally; Render's build and live endpoint checks validate the image. The owner chose a simple personal-project workflow: direct pushes to `main`, no branch protection, no CI pipeline, and no Dependabot PR automation. Local tests remain available. The eight open maintenance/protection PRs were closed without merging. Provider access controls, account MFA, secret environment values, historical provider disk contents, and all provider-side caches were not independently audited. No unrelated service or account resource was modified.
 
