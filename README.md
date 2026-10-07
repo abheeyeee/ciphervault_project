@@ -13,7 +13,7 @@ An everyday password vault you can **use on the website or download and use offl
 
 ## Run locally
 
-Use Python 3.12 for deployment; CI also verifies Python 3.11.
+Use Python 3.12 for deployment. The project also supports Python 3.11.
 
 ```bash
 python3 -m venv venv
@@ -66,6 +66,16 @@ New CLI master passwords require at least 12 characters. Existing vaults still u
 The CLI and browser encryption formats are separate. **Neither imports the other's backups.** Previous server data is preserved in the private, Git-ignored laptop backup; it is not automatically migrated or shipped. Keep that backup until any needed data has been recovered. The old server API, accounts, OAuth, database module, and API-calling frontend have been removed.
 
 ## Validation
+
+This is a personal project with a simple workflow: make changes locally, optionally run the checks below, commit, and push to `main`. No CI pipeline, required pull request, reviewer approval, or Dependabot PR automation is configured. Dependencies can be updated manually when needed.
+
+```bash
+git pull --ff-only
+# Make your changes, then stage the files you changed.
+git add README.md  # Replace with your changed file paths.
+git commit -m "Describe your change"
+git push origin main
+```
 
 ```bash
 python -m pytest -q
