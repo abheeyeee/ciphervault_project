@@ -1,6 +1,6 @@
 click>=8.0
 cryptography>=40.0
-rich>=13.0
+rich>=15.0.0
 pyperclip>=1.8
 argon2-cffi>=21.3.0
 pytest>=7.0
